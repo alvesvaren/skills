@@ -33,8 +33,15 @@ Use these rules for **TypeScript and JavaScript modules** (utilities, adapters, 
 ## Control flow and structure
 
 - Use **early returns** and **guard clauses**; avoid deep nesting.
+- Try to get rid of edge cases early. You can "morph" the data into the correct structure early in a function, and then just handle one case.
 - Treat heavy **`else` / `else if`** chains as a smell. Prefer early returns, extraction to helpers, or smaller functions.
 - If `else` remains, it should **read clearer** than the alternative—justify it mentally.
+- Declarative code when possible. Is it easier to follow, it's also probably harder for bugs to exist.
+
+## Tests
+
+- Tests should be used to confirm behavior and correctness.
+- Do not write tests such as "Error: you are not logged in" contains "not logged in", doesn't help at all
 
 ## Pragmatic limits
 
