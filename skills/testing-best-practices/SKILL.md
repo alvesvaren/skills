@@ -34,3 +34,7 @@ Feature work with meaningful logic gets the same loop: write the goal as tests f
 
 - Assert outcomes users or callers observe: rendered text and roles, returned values, persisted state, calls that crossed the edge.
 - Assert specific values: one `toEqual` with the real expected object beats a chain of `toBeDefined`/`toContain` shape checks.
+
+## Before finishing
+
+Re-read the tests you touched against the rules above — especially that every bug fix has a test that failed for the reported reason first — and fix any drift.

@@ -69,3 +69,7 @@ if (!order) throw new AppError("not_found", `Order ${id} not found`);
 - Drizzle with schema in code; migrations generated and checked in.
 - Table shapes stay out of API responses: select or map to the shape the endpoint promises — the response is a contract, the table is not.
 - Wrap multi-write invariants in a transaction.
+
+## Before finishing
+
+Re-read the full diff against the rules above and fix any drift — adherence decays over a long session, and the diff is where it shows.

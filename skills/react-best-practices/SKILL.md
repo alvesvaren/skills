@@ -38,3 +38,7 @@ Conventions for React UI code. Every `.ts`/`.tsx` module also follows [typescrip
 - Theme tokens over arbitrary values; an arbitrary value is for a clearly one-off case. `min-*` + `max-*` together is a fine intentional clamp.
 - Variant-heavy presentational components use CVA — add `class-variance-authority` as a direct dependency when introducing it.
 - Format dates and numbers with `Intl` APIs (`Intl.DateTimeFormat`, `Intl.NumberFormat`), not hand-rolled strings.
+
+## Before finishing
+
+Re-read the full diff against the rules above and fix any drift — adherence decays over a long session, and the diff is where it shows.

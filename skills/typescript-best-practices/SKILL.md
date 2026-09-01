@@ -10,7 +10,7 @@ Rules for TypeScript/JavaScript modules (utilities, adapters, shared types, busi
 ## Types and validation
 
 - Infer types from values: `satisfies`, `ReturnType`, generics. Write an explicit type only at a boundary consumers depend on.
-- `any` is forbidden. At boundaries take `unknown` and narrow with a schema or type guard.
+- At boundaries take `unknown` and narrow with a schema or type guard.
 - **Trust boundaries** — forms, `JSON.parse`, fetch responses, env vars, any data you don't control — are parsed with **Zod**. Internal shapes use discriminated unions or type guards: Zod at the edge, not in every layer.
 
 ## Adapters
@@ -19,11 +19,12 @@ Wrap a dependency behind a contract + adapter only when its shape is unstable (g
 
 ## Control flow
 
-Eliminate branches; handling them is the fallback. Before writing a conditional, ask whether the code can be shaped so the case cannot occur:
+Eliminate edge cases; handling them is the fallback. Before writing a conditional, try one of three moves that make the case impossible or identical to the normal one:
 
-- **Parse, don't validate**: normalize messy input into one canonical shape at the top of the function, so the body handles exactly one case instead of re-checking variants throughout.
-- Choose types and data structures where invalid states are unrepresentable (discriminated unions over boolean flags, non-empty parsing over `.length` checks downstream).
-- Special cases that survive become guard clauses that return early; after the guards, the happy path reads top-to-bottom, unnested, with no defensive re-checks of conditions already excluded.
+- **Normalize at the top**: collapse input variants into one canonical shape on the first lines, so the body handles exactly one case. Parsing external data (Zod) is one instance; so are `Array.isArray(x) ? x : [x]` and `range.end ?? Infinity`.
+- **Make the edge the normal case**: pick representations where the special case behaves like every other — an empty array needs no guard before `.map`/`.filter`, `items.join(", ")` deletes last-element separator logic, a discriminated union deletes invalid flag combinations.
+- **Move the boundary**: check once where the case can actually occur and let types carry the guarantee downstream — a function that takes `Order` instead of `Order | undefined` has nothing to handle; an exhaustive `switch` on a union has no "shouldn't happen" arm.
+- Cases that survive become guard clauses that return early; after the guards, the happy path reads top-to-bottom, unnested, with no defensive re-checks of conditions already excluded.
 - Each remaining branch is a cost. An `else`/`else if` chain signals a missing normalization, lookup map, or helper; keep an `else` only when it genuinely reads clearer.
 - Prefer declarative constructs (map/filter, object lookups) over imperative bookkeeping — fewer branches, and logic bugs have fewer places to hide.
 
@@ -41,18 +42,19 @@ Named constants for every value with meaning in business logic; deployment-speci
 ## Dependencies
 
 - Platform first: modern JS/TS, `Intl`, `URL`, `fetch`, `AbortController`, `structuredClone` before reaching for a package.
-- Add a dependency for genuinely hard problems (validation → zod, server state → TanStack Query); write it yourself when it's a small piece of code you'd fully own.
-- Every imported package is a **direct** dependency in `package.json` — install it when introducing the pattern, never rely on transitive availability.
+- Add a dependency for genuinely hard problems (validation → zod, server state → TanStack Query); write it yourself when it's a small piece of code you'd fully own. Install what you introduce.
 
 ## Async
 
 - Parallelize independent awaits with `Promise.all`; a sequential `await` chain implies real data dependency.
-- Every promise is awaited or explicitly handled — no floating promises.
 - Thread an `AbortSignal` through cancellable or long-running operations.
 
 ## Scope and compatibility
 
-- Backwards compatibility is opt-in: ship only the new path unless something is known to depend on the old one — ask instead of assuming.
+- Backwards compatibility is opt-in: ship only the new path and delete what it replaces, unless something is known to depend on the old one — ask instead of assuming.
 - Reuse before writing: search for an existing utility to use or extend before adding a near-duplicate.
-- Keep the surface small: delete code your change makes dead; shorter code, fewer bugs.
 - Keep related code close: a helper used by one file lives in that file.
+
+## Before finishing
+
+Re-read the full diff against the rules above and fix any drift — adherence decays over a long session, and the diff is where it shows.
