@@ -8,6 +8,7 @@ Claude Code plugin with opinionated conventions for the stack I actually use.
 | `react-best-practices` | React 19 + Vite + TanStack Query + Tailwind v4 conventions |
 | `testing-best-practices` | Vitest integration net, red-green TDD, Playwright E2E, edge mocking |
 | `backend-best-practices` | Hono, layers, contracts (tRPC/OpenAPI), AppError + onError, Drizzle |
+| `pushback` | How to present suggestions: unprompted disagreement, labeled confidence, ask for the why |
 
 ## Install
 
