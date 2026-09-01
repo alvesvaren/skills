@@ -1,15 +1,19 @@
 ---
 name: typescript-best-practices
-description: TypeScript/JavaScript module conventions — inferred DRY types, no any, Zod at trust boundaries, adapters only for unstable dependencies, early-return control flow, dependency discipline, async patterns. Use when writing or refactoring any .ts/.tsx logic, types, validation, utilities, adapters, or config; for React UI work also apply react-best-practices.
+description: TypeScript/JavaScript module conventions — single source of truth, inferred types, Zod at trust boundaries, edge-case elimination, destructuring, timeless comments, dependency discipline, async patterns. Use when writing or refactoring any .ts/.tsx logic, types, validation, utilities, adapters, or config; for React UI work also apply react-best-practices.
 ---
 
 # TypeScript best practices
 
 Rules for TypeScript/JavaScript modules (utilities, adapters, shared types, business logic). React UI behavior lives in [react-best-practices](../react-best-practices/SKILL.md); testing in [testing-best-practices](../testing-best-practices/SKILL.md).
 
+## Single source of truth
+
+Every fact lives in exactly one place; everything else derives from it. Derived things cannot drift out of sync — most staleness bugs are two copies of one truth diverging. This is the principle behind many rules here: types infer from values, a constant names a value once, derived data is computed rather than stored. When two places must agree, make one generate the other — or collapse them into one.
+
 ## Types and validation
 
-- Infer types from values: `satisfies`, `ReturnType`, generics. Write an explicit type only at a boundary consumers depend on.
+- Infer types from values: `satisfies`, `ReturnType`, `z.infer`, `keyof typeof` on `as const` objects. Write an explicit type only at a boundary consumers depend on — a type maintained in parallel with its value is two sources of truth.
 - At boundaries take `unknown` and narrow with a schema or type guard.
 - **Trust boundaries** — forms, `JSON.parse`, fetch responses, env vars, any data you don't control — are parsed with **Zod**. Internal shapes use discriminated unions or type guards: Zod at the edge, not in every layer.
 
@@ -27,6 +31,7 @@ Eliminate edge cases; handling them is the fallback. Before writing a conditiona
 - Cases that survive become guard clauses that return early; after the guards, the happy path reads top-to-bottom, unnested, with no defensive re-checks of conditions already excluded.
 - Each remaining branch is a cost. An `else`/`else if` chain signals a missing normalization, lookup map, or helper; keep an `else` only when it genuinely reads clearer.
 - Prefer declarative constructs (map/filter, object lookups) over imperative bookkeeping — fewer branches, and logic bugs have fewer places to hide.
+- Destructuring is underused — reach for it when shaping data: object parameters with defaults (`function f({ limit = 50 }: Opts)`), picking fields (`const { id, name } = row`), rest-omit (`const { secret, ...safe } = row`), tuple returns (`const [value, setValue] = ...`). It states the shape you want instead of assigning field by field, and renames stay compiler-checked.
 
 ## Comments
 

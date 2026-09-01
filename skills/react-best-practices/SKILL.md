@@ -13,6 +13,7 @@ Conventions for React UI code. Every `.ts`/`.tsx` module also follows [typescrip
 
 - Server/async state lives in TanStack Query. Reach for Zustand (or similar) only when local UI state is large or cross-cutting.
 - Renders are pure: UI derives from props, state, and query results.
+- One source of truth per piece of state: server data lives in the query cache, shareable UI state in the URL, the rest is derived at render. An effect that copies one state into another is two sources drifting — derive instead.
 - `useEffect` is a last resort: reach first for query `select`/callbacks, event handlers, derived values, or URL/search params. A genuinely needed effect lives in a dedicated `useThing()` hook; an inline effect is reserved for a tiny one-off sync that can't live anywhere else.
 
 ## Errors and loading
