@@ -1,0 +1,14 @@
+{
+  "name": "alve-skills",
+  "owner": { "name": "Alve Svarén", "email": "alve@interpreto.se" },
+  "metadata": {
+    "description": "Opinionated conventions for TypeScript, React, testing, and Hono backends"
+  },
+  "plugins": [
+    {
+      "name": "alve-skills",
+      "source": "./",
+      "description": "Opinionated conventions for TypeScript, React, testing, and Hono backends"
+    }
+  ]
+}
