@@ -1,45 +1,45 @@
 ---
 name: react-best-practices
-description: React/UI conventions for Vite + React 19 + TanStack Query + Tailwind v4 — Suspense and error boundaries for async UI, near-zero useEffect, small named components, flex-first layout, CVA variants. Use when building or refactoring React components, hooks, forms, queries, or Tailwind styling; typescript-best-practices still applies to all .tsx code.
+description: "React and UI conventions for Vite, React 19, TanStack Query, and Tailwind v4: Suspense and error boundaries for async UI, near-zero useEffect, one source of truth per piece of state, small named components, flex-first layout, CVA variants. Use when building or refactoring React components, hooks, forms, queries, or Tailwind styling. typescript-best-practices still applies to all .tsx code."
 ---
 
 # React best practices
 
-Conventions for React UI code. Every `.ts`/`.tsx` module also follows [typescript-best-practices](../typescript-best-practices/SKILL.md) (types, Zod, adapters, control flow, comments, dependencies).
+Conventions for React UI code. Every `.ts` and `.tsx` module also follows [typescript-best-practices](../typescript-best-practices/SKILL.md) for types, Zod, adapters, control flow, comments, and dependencies.
 
-**Stack defaults:** React 19, Vite, TanStack Query, Tailwind v4. OpenAPI-generated client code (often `src/client/`) is an unstable external shape — adapt it (see Adapters in typescript-best-practices).
+Stack defaults: React 19, Vite, TanStack Query, Tailwind v4. OpenAPI-generated client code, often under `src/client/`, is an unstable external shape. Adapt it. See Adapters in typescript-best-practices.
 
-## Data and effects
+## Keep each piece of state in one place
 
-- Server/async state lives in TanStack Query. Reach for Zustand (or similar) only when local UI state is large or cross-cutting.
-- Renders are pure: UI derives from props, state, and query results.
-- One source of truth per piece of state: server data lives in the query cache, shareable UI state in the URL, the rest is derived at render. An effect that copies one state into another is two sources drifting — derive instead.
-- `useEffect` is a last resort: reach first for query `select`/callbacks, event handlers, derived values, or URL/search params. A genuinely needed effect lives in a dedicated `useThing()` hook; an inline effect is reserved for a tiny one-off sync that can't live anywhere else.
+- Keep server and async state in TanStack Query. Reach for Zustand or similar only when local UI state is large or cross-cutting.
+- Give each piece of state one source of truth: server data lives in the query cache, shareable UI state lives in the URL, and the rest is derived at render. An effect that copies one state into another is two sources drifting. Derive instead.
+- Keep renders pure: UI derives from props, state, and query results.
+- Treat `useEffect` as a last resort. Reach first for query `select` or callbacks, event handlers, derived values, or search params. Put a genuinely needed effect in a dedicated `useThing()` hook. Reserve inline effects for a tiny one-off sync that can live nowhere else.
 
-## Errors and loading
+## Handle loading and errors at the right layer
 
-- Async/render-tree loading and failure: Suspense + error boundaries (or route-level equivalents), e.g. with suspense queries.
-- Event handlers, timers, and mutation paths bypass boundaries — handle those with try/catch, mutation `onError`, or toasts.
+- Handle loading and failure in the render tree with Suspense and error boundaries, or route-level equivalents. Suspense queries fit this model.
+- Event handlers, timers, and mutation paths bypass boundaries. Handle those with try/catch, mutation `onError`, or toasts.
 
-## Structure
+## Extract components around concepts
 
-- Small, focused components. Extract when it names a concept or enables reuse; keep JSX inline when splitting would hurt locality.
-- Multiple components per file only when tightly coupled; split a very long file by domain.
-- Compute view-ready data in named variables above the `return`; keep `{...}` expressions in JSX trivial.
+- Keep components small and focused. Extract when the piece names a concept or enables reuse. Keep JSX inline when splitting would hurt locality.
+- Put multiple components in one file only when they are tightly coupled. Split a very long file by domain.
+- Compute view-ready data in named variables above the `return`. Keep `{...}` expressions in the JSX trivial.
 
-## DOM and performance
+## Wrap DOM access, skip premature memo
 
-- Imperative DOM/browser APIs live in custom hooks, never sprinkled through component bodies.
-- `useMemo`/`React.memo`/`useCallback` only when the cost is measured or obvious — React Compiler is shrinking the need further.
-- Several independent `useState`s are fine. Coupled updates, stored derived state, or state that belongs in the URL/query cache signal extraction into a hook, store, or derived value.
+- Put imperative DOM and browser APIs in custom hooks, not in component bodies.
+- Add `useMemo`, `React.memo`, or `useCallback` only when the cost is measured or obvious. React Compiler shrinks the need further.
+- Several independent `useState` calls are fine. Coupled updates, stored derived state, or state that belongs in the URL or the query cache all signal extraction into a hook, a store, or a derived value.
 
-## Tailwind and CSS
+## Style with theme tokens, lay out with flex
 
-- Flex first; grid when the layout is truly 2D (explicit rows/columns, overlapping areas).
-- Theme tokens over arbitrary values; an arbitrary value is for a clearly one-off case. `min-*` + `max-*` together is a fine intentional clamp.
-- Variant-heavy presentational components use CVA — add `class-variance-authority` as a direct dependency when introducing it.
-- Format dates and numbers with `Intl` APIs (`Intl.DateTimeFormat`, `Intl.NumberFormat`), not hand-rolled strings.
+- Reach for flexbox first. Use grid when the layout is truly two-dimensional: explicit rows and columns, or overlapping areas.
+- Prefer theme tokens over arbitrary values. Reserve arbitrary values for clearly one-off cases. `min-*` and `max-*` together make a fine intentional clamp.
+- Use CVA for variant-heavy presentational components. Add `class-variance-authority` as a direct dependency when you introduce it.
+- Format dates and numbers with `Intl` APIs, such as `Intl.DateTimeFormat` and `Intl.NumberFormat`, not hand-rolled strings.
 
 ## Before finishing
 
-Re-read the full diff against the rules above and fix any drift — adherence decays over a long session, and the diff is where it shows.
+Re-read the full diff against the rules above and fix any drift. Adherence decays over a long session, and the diff is where it shows.

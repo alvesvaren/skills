@@ -1,65 +1,68 @@
 ---
 name: typescript-best-practices
-description: TypeScript/JavaScript module conventions — single source of truth, inferred types, Zod at trust boundaries, edge-case elimination, destructuring, timeless comments, dependency discipline, async patterns. Use when writing or refactoring any .ts/.tsx logic, types, validation, utilities, adapters, or config; for React UI work also apply react-best-practices.
+description: "TypeScript and JavaScript module conventions: single source of truth, inferred types, Zod at trust boundaries, edge-case elimination, destructuring, timeless comments, dependency discipline, async patterns. Use when writing or refactoring any .ts or .tsx logic, types, validation, utilities, adapters, or config. For React UI work, also apply react-best-practices."
 ---
 
 # TypeScript best practices
 
-Rules for TypeScript/JavaScript modules (utilities, adapters, shared types, business logic). React UI behavior lives in [react-best-practices](../react-best-practices/SKILL.md); testing in [testing-best-practices](../testing-best-practices/SKILL.md).
+Rules for TypeScript and JavaScript modules: utilities, adapters, shared types, business logic. React UI behavior lives in [react-best-practices](../react-best-practices/SKILL.md). Testing lives in [testing-best-practices](../testing-best-practices/SKILL.md).
 
-## Single source of truth
+## Keep one source of truth
 
-Every fact lives in exactly one place; everything else derives from it. Derived things cannot drift out of sync — most staleness bugs are two copies of one truth diverging. This is the principle behind many rules here: types infer from values, a constant names a value once, derived data is computed rather than stored. When two places must agree, make one generate the other — or collapse them into one.
+Every fact lives in exactly one place. Everything else derives from it. Derived things cannot drift out of sync, and most staleness bugs are two copies of one truth diverging. Many rules here are instances of this principle: types infer from values, a constant names a value once, derived data is computed rather than stored. When two places must agree, make one generate the other, or collapse them into one.
 
-## Types and validation
+## Infer types, validate at boundaries
 
-- Infer types from values: `satisfies`, `ReturnType`, `z.infer`, `keyof typeof` on `as const` objects. Write an explicit type only at a boundary consumers depend on — a type maintained in parallel with its value is two sources of truth.
-- At boundaries take `unknown` and narrow with a schema or type guard.
-- **Trust boundaries** — forms, `JSON.parse`, fetch responses, env vars, any data you don't control — are parsed with **Zod**. Internal shapes use discriminated unions or type guards: Zod at the edge, not in every layer.
+- Infer types from values with `satisfies`, `ReturnType`, `z.infer`, and `keyof typeof` on `as const` objects. Write an explicit type only at a boundary consumers depend on. A type maintained in parallel with its value is a second source of truth.
+- At boundaries, take `unknown` and narrow it with a schema or a type guard.
+- Parse trust boundaries with Zod. A trust boundary is any data you do not control: forms, `JSON.parse`, fetch responses, env vars. For internal shapes, discriminated unions or type guards are enough. Zod belongs at the edge, not in every layer.
 
-## Adapters
+## Add adapters only for unstable dependencies
 
-Wrap a dependency behind a contract + adapter only when its shape is unstable (generated OpenAPI types, churning third-party APIs): define the type consumers need, map external → domain in one place, and depend on the contract. A pinned, stable library is used directly — fewer layers beats ceremony. The contract may be an inferred type; write an explicit `interface` only when inference stops being the single source of truth.
+Wrap a dependency behind a contract and an adapter only when its shape is unstable. Generated OpenAPI types and churning third-party APIs qualify. Define the type consumers need, map external to domain in one place, and depend on the contract. Use a pinned, stable library directly. The contract may be an inferred type. Write an explicit `interface` only when inference stops being the single source of truth.
 
-## Control flow
+## Eliminate edge cases
 
-Eliminate edge cases; handling them is the fallback. Before writing a conditional, try one of three moves that make the case impossible or identical to the normal one:
+Handling an edge case is the fallback. Before you write a conditional, try one of three moves that make the case impossible or identical to the normal one:
 
-- **Normalize at the top**: collapse input variants into one canonical shape on the first lines, so the body handles exactly one case. Parsing external data (Zod) is one instance; so are `Array.isArray(x) ? x : [x]` and `range.end ?? Infinity`.
-- **Make the edge the normal case**: pick representations where the special case behaves like every other — an empty array needs no guard before `.map`/`.filter`, `items.join(", ")` deletes last-element separator logic, a discriminated union deletes invalid flag combinations.
-- **Move the boundary**: check once where the case can actually occur and let types carry the guarantee downstream — a function that takes `Order` instead of `Order | undefined` has nothing to handle; an exhaustive `switch` on a union has no "shouldn't happen" arm.
-- Cases that survive become guard clauses that return early; after the guards, the happy path reads top-to-bottom, unnested, with no defensive re-checks of conditions already excluded.
-- Each remaining branch is a cost. An `else`/`else if` chain signals a missing normalization, lookup map, or helper; keep an `else` only when it genuinely reads clearer.
-- Prefer declarative constructs (map/filter, object lookups) over imperative bookkeeping — fewer branches, and logic bugs have fewer places to hide.
-- Destructuring is underused — reach for it when shaping data: object parameters with defaults (`function f({ limit = 50 }: Opts)`), picking fields (`const { id, name } = row`), rest-omit (`const { secret, ...safe } = row`), tuple returns (`const [value, setValue] = ...`). It states the shape you want instead of assigning field by field, and renames stay compiler-checked.
+- **Normalize at the top.** Collapse input variants into one canonical shape on the first lines, so the body handles exactly one case. Parsing external data with Zod is one instance. So are `Array.isArray(x) ? x : [x]` and `range.end ?? Infinity`.
+- **Make the edge the normal case.** Pick representations where the special case behaves like every other case. An empty array needs no guard before `.map` or `.filter`. `items.join(", ")` deletes last-element separator logic. A discriminated union deletes invalid flag combinations.
+- **Move the boundary.** Check once, where the case can occur, and let types carry the guarantee downstream. A function that takes `Order` instead of `Order | undefined` has nothing to handle. An exhaustive `switch` on a union has no arm for cases that cannot happen.
 
-## Comments
+For the cases that survive:
 
-- Comments are **timeless**: they describe the code as it stands and hold only what the code cannot say — intent, tradeoffs, non-obvious invariants.
-- Change narration ("changed because the user asked...", "previously this did X", dated notes) belongs in the commit message, never in the code. Committed reasoning reads as law to the next agent, who will trust it over their own analysis long after it is stale.
-- JSDoc public APIs, hooks, and utilities whose behavior the types don't convey. One or two lines.
-- A spot that seems to need a comment is often code that needs a rethink: refactor first, comment what remains.
+- Write them as guard clauses that return early. After the guards, the happy path reads top to bottom, unnested, with no re-checks of conditions the guards already excluded.
+- Treat each remaining branch as a cost. An `else if` chain signals a missing normalization, lookup map, or helper. Keep an `else` only when it reads clearer than the alternative.
+- Prefer declarative constructs, such as `map`, `filter`, and object lookups, over imperative bookkeeping. Fewer branches leave logic bugs fewer places to hide.
+- Reach for destructuring when shaping data. It is underused: object parameters with defaults (`function f({ limit = 50 }: Opts)`), picking fields (`const { id, name } = row`), rest-omit (`const { secret, ...safe } = row`), tuple returns. It states the shape you want instead of assigning field by field, and renames stay compiler-checked.
 
-## Constants and config
+## Write timeless comments
 
-Named constants for every value with meaning in business logic; deployment-specific values come from env config (`import.meta.env` in Vite), parsed like any trust boundary.
+- A comment describes the code as it stands. It holds only what the code cannot say: intent, tradeoffs, non-obvious invariants.
+- Change narration belongs in the commit message, never in the code. This includes "changed because the user asked", "previously this did X", and dated notes. Committed reasoning reads as law to the next agent, who trusts it over their own analysis long after it is stale.
+- Add JSDoc to public APIs, hooks, and utilities whose behavior the types do not convey. Keep it to one or two lines.
+- A spot that seems to need a comment is often code that needs a rethink. Refactor first. Comment what remains.
 
-## Dependencies
+## Name constants, parse config
 
-- Platform first: modern JS/TS, `Intl`, `URL`, `fetch`, `AbortController`, `structuredClone` before reaching for a package.
-- Add a dependency for genuinely hard problems (validation → zod, server state → TanStack Query); write it yourself when it's a small piece of code you'd fully own. Install what you introduce.
+Give every value with meaning in business logic a named constant. Take deployment-specific values from env config, such as `import.meta.env` in Vite, and parse them like any trust boundary.
 
-## Async
+## Choose dependencies deliberately
 
-- Parallelize independent awaits with `Promise.all`; a sequential `await` chain implies real data dependency.
+- Reach for the platform first: modern JavaScript and TypeScript, `Intl`, `URL`, `fetch`, `AbortController`, `structuredClone`.
+- Add a dependency for a genuinely hard problem. Validation gets zod. Server state gets TanStack Query. Write the code yourself when it is a small piece you would fully own. Install what you introduce.
+
+## Handle async deliberately
+
+- Run independent awaits in parallel with `Promise.all`. A sequential `await` chain implies a real data dependency.
 - Thread an `AbortSignal` through cancellable or long-running operations.
 
-## Scope and compatibility
+## Keep scope tight
 
-- Backwards compatibility is opt-in: ship only the new path and delete what it replaces, unless something is known to depend on the old one — ask instead of assuming.
+- Backwards compatibility is opt-in. Ship only the new path and delete what it replaces, unless something is known to depend on the old one. Ask instead of assuming.
 - Reuse before writing: search for an existing utility to use or extend before adding a near-duplicate.
-- Keep related code close: a helper used by one file lives in that file.
+- Keep related code close. A helper used by one file lives in that file.
 
 ## Before finishing
 
-Re-read the full diff against the rules above and fix any drift — adherence decays over a long session, and the diff is where it shows.
+Re-read the full diff against the rules above and fix any drift. Adherence decays over a long session, and the diff is where it shows.
