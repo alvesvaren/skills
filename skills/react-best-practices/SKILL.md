@@ -14,7 +14,7 @@ Stack defaults: React 19, Vite, TanStack Query, Tailwind v4. OpenAPI-generated c
 - Keep server and async state in TanStack Query. Reach for Zustand or similar only when local UI state is large or cross-cutting.
 - Give each piece of state one source of truth: server data lives in the query cache, shareable UI state lives in the URL, and the rest is derived at render. An effect that copies one state into another is two sources drifting. Derive instead.
 - Keep renders pure: UI derives from props, state, and query results.
-- Treat `useEffect` as a last resort. Reach first for query `select` or callbacks, event handlers, derived values, or search params. Put a genuinely needed effect in a dedicated `useThing()` hook. Reserve inline effects for a tiny one-off sync that can live nowhere else.
+- Treat `useEffect` as a last resort. Reach first for query `select` or callbacks, event handlers, derived values, or search params. Put a needed effect in a dedicated `useThing()` hook. Reserve inline effects for a tiny one-off sync that can live nowhere else.
 
 ## Handle loading and errors at the right layer
 
@@ -35,8 +35,8 @@ Stack defaults: React 19, Vite, TanStack Query, Tailwind v4. OpenAPI-generated c
 
 ## Style with theme tokens, lay out with flex
 
-- Reach for flexbox first. Use grid when the layout is truly two-dimensional: explicit rows and columns, or overlapping areas.
-- Prefer theme tokens over arbitrary values. Reserve arbitrary values for clearly one-off cases. `min-*` and `max-*` together make a fine intentional clamp.
+- Reach for flexbox first. Use grid when the layout is two-dimensional: explicit rows and columns, or overlapping areas.
+- Prefer theme tokens over arbitrary values. Reserve arbitrary values for one-off cases. `min-*` and `max-*` together make a fine intentional clamp.
 - Use CVA for variant-heavy presentational components. Add `class-variance-authority` as a direct dependency when you introduce it.
 - Format dates and numbers with `Intl` APIs, such as `Intl.DateTimeFormat` and `Intl.NumberFormat`, not hand-rolled strings.
 

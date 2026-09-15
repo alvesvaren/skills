@@ -1,6 +1,6 @@
 ---
 name: writing
-description: "Prose style for anything that is not code: chat replies, docs, READMEs, ADRs, commit messages, PR descriptions, skills, CLAUDE.md. Plain words, one thought per sentence, no AI tells, no ambiguity. Use via /writing when writing or reviewing prose."
+description: "Prose style for anything that is not code: chat replies, docs, READMEs, ADRs, commit messages, PR descriptions, skills, CLAUDE.md. Plain words, one thought per sentence, no AI tells, no ambiguity. Invoke with /alve-skills:writing when writing or reviewing prose."
 disable-model-invocation: true
 ---
 
@@ -9,7 +9,7 @@ disable-model-invocation: true
 Write for a tired engineer reading once. Three rules sit above everything else:
 
 - **Cut every word that does no work.** If the sentence survives without the word, the word goes. "In order to" is "to". "It is important to note that" is nothing.
-- **Use the short, everyday word.** "Use", not "utilize". "Help", not "facilitate". A long word has to buy its length with precision.
+- **Use the short, everyday word.** "Use", not "utilize". "Help", not "facilitate". Use a longer word only when it is more precise.
 - **When a rule makes a sentence worse, fix the sentence another way.** The rules serve the reader. A sentence that follows every rule and sounds machine-written has failed.
 
 ## Say the real thing
@@ -28,7 +28,7 @@ Write for a tired engineer reading once. Three rules sit above everything else:
 - Say who does what: "the compiler checks", not "is checked". Passive only when the actor is unknown or beside the point.
 - Write instructions as commands with the condition first: "To delete the document, click Delete." Never "should be done". Never "simply", "just", "easy", or "quickly" in a procedure.
 - Common case first, exceptions after.
-- Mix sentence lengths on purpose. Short sentences land a point. Longer ones carry a fact with its condition or consequence. One thought per sentence does not mean one length per sentence.
+- Mix sentence lengths on purpose. Short sentences make a point. Longer ones carry a fact with its condition or consequence. One thought per sentence does not mean one length per sentence.
 
 ## Leave no sentence open to two readings
 
@@ -36,11 +36,11 @@ Write for a tired engineer reading once. Three rules sit above everything else:
 - Make every "it", "they", and "this" point at one obvious noun. Repeat the noun when in doubt. Never use "this" or "which" to point at a whole clause.
 - Keep the small words that show structure: "the", "a", "that". "Remove backup file" reads two ways. "Remove the backup file" reads one.
 - Break up noun strings: "the proto import budget check script" becomes "the script that checks the proto-import budget".
-- Say which parts "and" or "or" joins when a sentence can group two ways. "Both... and", "either... or" are free.
+- Say which parts "and" or "or" joins when a sentence can group two ways. "Both... and" and "either... or" settle it.
 - Call each thing by one name, everywhere. Pick "start" or "launch", not both. Synonym cycling teaches the reader three things where there is one.
 - No slashes: write "a, b, or both", not "a/b" or "and/or". No "(s)" plurals. No idioms, Latin abbreviations, or metaphors.
 
-## Kill the AI tells
+## Remove the AI tells
 
 Punctuation and formatting:
 
@@ -65,7 +65,7 @@ Chatbot artifacts:
 
 ## Have a view where it belongs
 
-Dry by default. Chat replies and explanations may carry an opinion: say what you make of a tradeoff instead of listing pros and cons, and label it as in [pushback](../pushback/SKILL.md). Reference docs, how-tos, commit messages, and PR bodies stay dry.
+Dry by default. Chat replies and explanations may carry an opinion. Say what you make of a tradeoff instead of listing pros and cons, and label it as in [pushback](../pushback/SKILL.md). Reference docs, how-tos, commit messages, and PR bodies stay dry.
 
 ## Per format
 

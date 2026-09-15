@@ -11,7 +11,7 @@ Stack defaults: Hono, Drizzle, Zod.
 
 ## Default to few layers
 
-A route handler that calls a domain function that queries the database is usually the whole stack. Add an abstraction when something concrete justifies it: a real second consumer, a deep module that hides genuine complexity, or a boundary expected to churn. Skip ceremony added for symmetry, such as a service class per table or a repository interface with one implementation.
+A route handler that calls a domain function that queries the database is usually the whole stack. Add an abstraction when something concrete justifies it: a real second consumer, a deep module that hides complexity, or a boundary expected to churn. Skip ceremony added for symmetry, such as a service class per table or a repository interface with one implementation.
 
 ## Pick the contract by its consumers
 
@@ -40,7 +40,7 @@ export class AppError extends Error {
   }
 }
 
-// app.ts — the one place errors become HTTP
+// app.ts, the one place errors become HTTP
 const STATUS: Record<ErrorCode, ContentfulStatusCode> = {
   not_found: 404,
   forbidden: 403,
@@ -56,7 +56,7 @@ app.onError((err, c) => {
   return c.json({ error: "internal" }, 500);
 });
 
-// domain code — no HTTP knowledge
+// domain code, no HTTP knowledge
 if (!order) throw new AppError("not_found", `Order ${id} not found`);
 ```
 

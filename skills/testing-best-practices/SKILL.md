@@ -28,7 +28,7 @@ Feature work with meaningful logic gets the same loop: write the goal as tests f
 ## Mock the edge only
 
 - Mock the edge: network (MSW or fetch-level), time, randomness, external services.
-- Run your own modules real. Mock an internal module only when isolating it is genuinely expensive, such as a heavy auth context or native bindings. Treat every internal mock as a cost to justify.
+- Run your own modules real. Mock an internal module only when isolating it is expensive, such as a heavy auth context or native bindings. Treat every internal mock as a cost to justify.
 
 ## Assert observable outcomes
 

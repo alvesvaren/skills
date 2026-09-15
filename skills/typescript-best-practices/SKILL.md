@@ -34,7 +34,7 @@ For the cases that survive:
 - Write them as guard clauses that return early. After the guards, the happy path reads top to bottom, unnested, with no re-checks of conditions the guards already excluded.
 - Treat each remaining branch as a cost. An `else if` chain signals a missing normalization, lookup map, or helper. Keep an `else` only when it reads clearer than the alternative.
 - Prefer declarative constructs, such as `map`, `filter`, and object lookups, over imperative bookkeeping. Fewer branches leave logic bugs fewer places to hide.
-- Reach for destructuring when shaping data. It is underused: object parameters with defaults (`function f({ limit = 50 }: Opts)`), picking fields (`const { id, name } = row`), rest-omit (`const { secret, ...safe } = row`), tuple returns. It states the shape you want instead of assigning field by field, and renames stay compiler-checked.
+- Reach for destructuring when shaping data: object parameters with defaults (`function f({ limit = 50 }: Opts)`), picking fields (`const { id, name } = row`), rest-omit (`const { secret, ...safe } = row`), tuple returns. It states the shape you want instead of assigning field by field, and renames stay compiler-checked.
 
 ## Write timeless comments
 
@@ -50,7 +50,7 @@ Give every value with meaning in business logic a named constant. Take deploymen
 ## Choose dependencies deliberately
 
 - Reach for the platform first: modern JavaScript and TypeScript, `Intl`, `URL`, `fetch`, `AbortController`, `structuredClone`.
-- Add a dependency for a genuinely hard problem. Validation gets zod. Server state gets TanStack Query. Write the code yourself when it is a small piece you would fully own. Install what you introduce.
+- Add a dependency for a hard problem. Validation gets zod. Server state gets TanStack Query. Write the code yourself when it is a small piece you would fully own. Install what you introduce.
 
 ## Handle async deliberately
 
@@ -60,7 +60,7 @@ Give every value with meaning in business logic a named constant. Take deploymen
 ## Keep scope tight
 
 - Backwards compatibility is opt-in. Ship only the new path and delete what it replaces, unless something is known to depend on the old one. Ask instead of assuming.
-- Reuse before writing: search for an existing utility to use or extend before adding a near-duplicate.
+- Search for an existing utility to use or extend before adding a near-duplicate.
 - Keep related code close. A helper used by one file lives in that file.
 
 ## Before finishing
