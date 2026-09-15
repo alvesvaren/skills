@@ -9,6 +9,7 @@ Claude Code plugin with opinionated conventions for the stack I actually use.
 | `testing-best-practices` | Vitest integration net, red-green TDD, Playwright E2E, edge mocking |
 | `backend-best-practices` | Hono, layers, contracts (tRPC/OpenAPI), AppError + onError, Drizzle |
 | `pushback` | How to present suggestions: unprompted disagreement, labeled confidence, ask for the why |
+| `writing` | Prose style for chat, docs, commits, PRs, skills: plain words, one thought per sentence, no AI tells. Manual only |
 
 ## Install
 
@@ -27,4 +28,4 @@ claude --plugin-dir /path/to/this/repo
 
 then `/reload-plugins` after edits.
 
-The skills are model-invoked: Claude applies them automatically when writing matching code. They can also be invoked manually, e.g. `/alve-skills:testing-best-practices`.
+The skills are model-invoked: Claude applies them automatically when writing matching code. They can also be invoked manually, e.g. `/alve-skills:testing-best-practices`. `writing` is manual only: run `/alve-skills:writing` when writing or reviewing prose.
