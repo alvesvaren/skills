@@ -36,7 +36,7 @@ Write for a tired engineer reading once. Three rules sit above everything else:
 - Keep "only" and "not" next to the word they change. "Only fails on growth" and "fails only on growth" say different things.
 - Make every "it", "they", and "this" point at one obvious noun. Repeat the noun when in doubt. Never use "this" or "which" to point at a whole clause.
 - Keep the small words that show structure: "the", "a", "that". "Remove backup file" reads two ways. "Remove the backup file" reads one.
-- Break up noun strings: "the user session cache invalidation job" becomes "the job that invalidates the user session cache".
+- Break up noun strings: "the proto import budget check script" becomes "the script that checks the proto-import budget".
 - Say which parts "and" or "or" joins when a sentence can group two ways. "Both... and" and "either... or" settle it.
 - Call each thing by one name, everywhere. Pick "start" or "launch", not both. A second name teaches the reader a second thing.
 - Write "a, b, or both" instead of a slash, and the plural out instead of "(s)". Prefer plain constructions to idioms and metaphors, so a translator and an agent parse them the same way.
