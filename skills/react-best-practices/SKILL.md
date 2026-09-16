@@ -1,18 +1,18 @@
 ---
 name: react-best-practices
-description: "React and UI conventions for Vite, React 19, TanStack Query, and Tailwind v4: Suspense and error boundaries for async UI, near-zero useEffect, one source of truth per piece of state, small named components, flex-first layout, CVA variants. Use when building or refactoring React components, hooks, forms, queries, or Tailwind styling. typescript-best-practices still applies to all .tsx code."
+description: "React and UI conventions for Vite, TanStack Query, and Tailwind: Suspense and error boundaries for async UI, near-zero useEffect, one source of truth per piece of state, small named components, flex-first layout, CVA variants. Use when building or refactoring React components, hooks, forms, queries, or Tailwind styling. typescript-best-practices still applies to all .tsx code."
 ---
 
 # React best practices
 
 Conventions for React UI code. Every `.ts` and `.tsx` module also follows [typescript-best-practices](../typescript-best-practices/SKILL.md) for types, Zod, adapters, control flow, comments, and dependencies.
 
-Stack defaults: React 19, Vite, TanStack Query, Tailwind v4. OpenAPI-generated client code, often under `src/client/`, is an unstable external shape. Adapt it. See Adapters in typescript-best-practices.
+Stack defaults: React, Vite, TanStack Query, Tailwind. Generated API client code is an unstable external shape. Adapt it, as described under Adapters in typescript-best-practices.
 
 ## Keep each piece of state in one place
 
-- Keep server and async state in TanStack Query. Reach for Zustand or similar only when local UI state is large or cross-cutting.
-- Give each piece of state one source of truth: server data lives in the query cache, shareable UI state lives in the URL, and the rest is derived at render. An effect that copies one state into another is two sources drifting. Derive instead.
+- Keep server and async state in TanStack Query. Reach for Zustand only when local UI state is large or cross-cutting.
+- Server data lives in the query cache, shareable UI state lives in the URL, and the rest is derived at render. An effect that copies one state into another is two sources drifting. Derive instead.
 - Keep renders pure: UI derives from props, state, and query results.
 - Treat `useEffect` as a last resort. Reach first for query `select` or callbacks, event handlers, derived values, or search params. Put a needed effect in a dedicated `useThing()` hook. Reserve inline effects for a tiny one-off sync that can live nowhere else.
 

@@ -68,7 +68,7 @@ if (!order) throw new AppError("not_found", `Order ${id} not found`);
 ## Keep the schema in code, shape what leaves it
 
 - Use Drizzle with the schema in code. Generate migrations and check them in.
-- Shape responses with destructuring, not mapper layers. Pick the fields the endpoint returns, with `const { id, name, email } = user` or with `columns:` in the query. Renames stay compiler-checked one-line edits. On tables that hold sensitive columns, pick rather than rest-omit: `...rest` is a deny-list, so a column added later silently flows to clients, while a pick is an allow-list. Public contracts still get a real mapping to the promised shape.
+- Shape responses by picking fields, with destructuring or `columns:` in the query, not with mapper layers. Pick rather than rest-omit: `...rest` is a deny-list, so a column added later silently flows to clients. Public contracts still get a real mapping to the promised shape.
 - Wrap multi-write invariants in a transaction.
 - Compute derived values with generated columns, views, defaults, or at read time, instead of writing second copies. When denormalizing for performance, give one code path ownership of the write.
 

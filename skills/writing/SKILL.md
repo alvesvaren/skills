@@ -1,6 +1,6 @@
 ---
 name: writing
-description: "Prose style for anything that is not code: chat replies, docs, READMEs, ADRs, commit messages, PR descriptions, skills, CLAUDE.md. Plain words, one thought per sentence, no AI tells, no ambiguity. Invoke with /alve-skills:writing when writing or reviewing prose."
+description: "Prose style for anything that is not code: docs, READMEs, ADRs, commit messages, PR descriptions, skills, CLAUDE.md. Plain words, one thought per sentence, no AI tells, no ambiguity. Invoke with /alve-skills:writing when writing or reviewing prose."
 disable-model-invocation: true
 ---
 
@@ -36,7 +36,7 @@ Write for a tired engineer reading once. Three rules sit above everything else:
 - Keep "only" and "not" next to the word they change. "Only fails on growth" and "fails only on growth" say different things.
 - Make every "it", "they", and "this" point at one obvious noun. Repeat the noun when in doubt. Never use "this" or "which" to point at a whole clause.
 - Keep the small words that show structure: "the", "a", "that". "Remove backup file" reads two ways. "Remove the backup file" reads one.
-- Break up noun strings: "the proto import budget check script" becomes "the script that checks the proto-import budget".
+- Break up noun strings: "the user session cache invalidation job" becomes "the job that invalidates the user session cache".
 - Say which parts "and" or "or" joins when a sentence can group two ways. "Both... and" and "either... or" settle it.
 - Call each thing by one name, everywhere. Pick "start" or "launch", not both. A second name teaches the reader a second thing.
 - Write "a, b, or both" instead of a slash, and the plural out instead of "(s)". Prefer plain constructions to idioms and metaphors, so a translator and an agent parse them the same way.
@@ -61,18 +61,17 @@ Answer directly and end when the content ends. Openers that praise the question,
 
 ## Have a view where it belongs
 
-Dry by default. Chat replies and explanations may carry an opinion. Say what you make of a tradeoff instead of listing pros and cons, and label it as in [pushback](../pushback/SKILL.md). Reference docs, how-tos, commit messages, and PR bodies stay dry.
+Dry by default. Replies to the user and explanation docs may carry an opinion. Say what you make of a tradeoff instead of listing pros and cons, and label it as in [pushback](../pushback/SKILL.md). Reference docs, how-tos, commit messages, and PR bodies stay dry.
 
 ## Per format
 
-- **Chat replies.** Lead with the answer or outcome. If something could not be verified, say so first. No headers under about 500 words. Numbers go in a table or on their own line, not in prose.
 - **Commits and PRs.** A briefing a reviewer reads in under a minute. What changed and why, not how you got there. Link logs and metrics instead of pasting them.
 - **Docs and READMEs.** One document, one purpose. Link to the neighboring doc instead of mixing a how-to into a reference.
 - **Skills and CLAUDE.md.** Every line is a rule an agent can check, stated positively with its reason in one clause. Models copy patterns they see, so quote a bad example only when the rule is the word itself, and only one. Apply the writing-for-agents skill too when it is installed.
 
 ## Swedish
 
-The same rules apply. In addition: write compound words as one word ("kodgranskning", not "kod granskning"), use the Swedish term where one exists instead of the English loan, and keep "du" throughout.
+The same rules apply. In addition: write compound words as one word ("kodgranskning", not "kod granskning"), use the Swedish term where one exists instead of the English loan, and keep "du" throughout. Committed files stay in English unless the user says otherwise, even when the conversation is in Swedish.
 
 ## Before finishing
 

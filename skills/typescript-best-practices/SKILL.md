@@ -38,6 +38,7 @@ For the cases that survive:
 
 ## Write timeless comments
 
+- Write identifiers, comments, and committed text in English unless the project says otherwise.
 - A comment describes the code as it stands. It holds only what the code cannot say: intent, tradeoffs, non-obvious invariants.
 - Change narration belongs in the commit message, never in the code. This includes "changed because the user asked", "previously this did X", and dated notes. Committed reasoning reads as law to the next agent, who trusts it over their own analysis long after it is stale.
 - Add JSDoc to public APIs, hooks, and utilities whose behavior the types do not convey. Keep it to one or two lines.
@@ -50,7 +51,7 @@ Give every value with meaning in business logic a named constant. Take deploymen
 ## Choose dependencies deliberately
 
 - Reach for the platform first: modern JavaScript and TypeScript, `Intl`, `URL`, `fetch`, `AbortController`, `structuredClone`.
-- Add a dependency for a hard problem. Validation gets zod. Server state gets TanStack Query. Write the code yourself when it is a small piece you would fully own. Install what you introduce.
+- Add a dependency for a hard problem. Validation gets zod. Server state gets TanStack Query. Write the code yourself when it is a small piece you would fully own. Install what you introduce, at the latest stable version unless the project or the user pins one.
 
 ## Handle async deliberately
 
