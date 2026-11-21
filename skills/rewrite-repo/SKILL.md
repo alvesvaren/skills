@@ -9,11 +9,11 @@ disable-model-invocation: true
 
 Target: $ARGUMENTS. If no target is given, ask for one.
 
-Find the architecture the project would have if it were started today by an engineer who knew everything it turned out to need. The design covers the whole system, not one module at a time, because the pieces constrain each other: the contract shapes both sides, and the data model shapes the contract. The old code is evidence of what the system does and where it keeps changing. It does not decide the new structure.
+Find the architecture the project would have if it were started today by an engineer who knew everything it turned out to need. Design the whole system at once, not one module at a time, because the pieces constrain each other. The contract shapes both sides, and the data model shapes the contract. The old code is evidence of what the system does and where it keeps changing. It does not decide the new structure.
 
-The goal is better code. The spec exists so the user can judge the design and learn why it is better, so it explains each decision briefly and spends its words on the decisions that matter.
+The goal is better code. The spec exists so the user can judge the design and learn why it is better. Keep each explanation brief, and spend the words on the decisions that matter.
 
-[typescript-best-practices](../typescript-best-practices/SKILL.md), [testing-best-practices](../testing-best-practices/SKILL.md), [backend-best-practices](../backend-best-practices/SKILL.md), and [react-best-practices](../react-best-practices/SKILL.md) apply in full to the new code. [pushback](../pushback/SKILL.md) applies to every recommendation, and [writing](../writing/SKILL.md) to the spec and everything you write to the user. Read writing even though it is manual only.
+[typescript-best-practices](../typescript-best-practices/SKILL.md), [testing-best-practices](../testing-best-practices/SKILL.md), [backend-best-practices](../backend-best-practices/SKILL.md), and [react-best-practices](../react-best-practices/SKILL.md) apply in full to the new code. [pushback](../pushback/SKILL.md) applies to every recommendation, and [writing](../writing/SKILL.md) to the spec and everything you write to the user. Read the writing skill even though it is manual only.
 
 ## Vocabulary
 
@@ -30,19 +30,20 @@ Invoking this skill is the user's request to use subagents. Keep the main contex
 
 - **Reading and summarizing** go to the smallest model the harness offers. Use a mid-size model for an area that is large or tangled.
 - **Implementing a slice against a fixed contract** goes to a mid-size model.
-- **Decisions and review** stay on the main model: designing twice and the final review.
-- Set the model on each agent explicitly. Skip agents that inherit the conversation for cheap work, since they usually run on the main model.
-- Each fresh agent starts cold. Give it a brief with its area, what to look for, and the shape of its report, and run independent agents in parallel.
+- **Designing twice and the final review** stay on the main model, since they are decisions.
+- Set the model on each subagent explicitly. For cheap work, skip subagents that inherit the conversation, since they usually run on the main model.
+- Each new subagent starts cold. Give it a brief with its area, what to look for, and the shape of its report.
+- Run independent subagents in parallel.
 
-## 1. Read the repo, in parallel
+## 1. Read the repo in parallel
 
-Fan out the reading and keep the main context for the design:
+Spawn these subagents at once, and keep the main context for the design:
 
-- **One read-only agent per area,** such as backend, frontend, data and migrations, and infra and CI. Each reports the area's behavior with each item marked working, broken, half-built, or dead, who consumes it, and where it hurts: code that is hard to test, tests that mock internal modules, shallow modules, and one change spreading across many files.
-- **One history agent.** It reports hotspots, files that change together, and the commits that added a new variant of something, with how many files each touched. These are the axes of change.
-- **One seam agent,** when the repo has both a frontend and a backend. It reports how types cross the wire, where input is validated, how errors and auth reach the client, and how the client caches server state.
+- **One read-only subagent per area,** such as backend, frontend, data and migrations, and infra and CI. It reports the area's behavior, with each item marked working, broken, half-built, or dead, and who consumes it. It also reports where the area hurts: code that is hard to test, tests that mock internal modules, shallow modules, and changes that spread across many files.
+- **One history subagent.** It reports hotspots, files that change together, and the commits that added a new variant of something, with how many files each commit touched. The repeated variants are the axes of change.
+- **One seam subagent,** when the repo has both a frontend and a backend. It reports how types cross the wire, where input is validated, how errors and auth reach the client, and how the client caches server state.
 
-Run the app and its tests when you can, since observed behavior beats read behavior.
+When you can, run the app and its tests yourself, since observed behavior beats read behavior.
 
 ## 2. Derive the architecture
 
@@ -57,21 +58,22 @@ A pattern earns its place with one of two kinds of evidence:
 - **An axis of change.** At least three variants exist, or the history shows new ones keep arriving. Make adding a variant cheap, ideally one new file plus one registration.
 - **A real seam.** Something varies across it today. One adapter is a hypothetical seam, and two adapters, such as production and a test double at an I/O edge, make a real one.
 
-Merge near-duplicate code only when the copies are the same knowledge, which shows as changing together in the history. Code that looks alike but encodes two rules stays separate, since merging it makes one edit silently change both rules.
+Merge near-duplicate code only when the copies change together in the history, since that shows they are the same knowledge. Code that looks alike but encodes two rules stays separate, since merging it makes one edit silently change both rules.
 
 ### Design for the test surface
 
-The interface is the test surface. Shape each module so a test reaches it through the same interface its callers use, with only the edge mocked. When a test needs to reach past the interface, the module has the wrong shape. Skip extracting code into a separate unit only so it can be tested in isolation, since the bugs then hide in how it is called.
+The interface is the test surface. Shape each module so a test reaches it through the same interface its callers use, with only the edge mocked. When a test needs to reach past the interface, the module has the wrong shape. When an isolated test is the only reason to extract code, leave the code in place, since the bugs hide in how it is called.
 
 ### Treat frontend and backend as one system
 
+When the repo has both sides, plan them together:
+
 - Share code between the two only where it crosses the wire: schemas, inferred types, error codes. Keep UI and server code out of shared packages.
 - Use a monorepo when one team ships both sides together. Keep separate repos when they deploy and version independently.
-- Prove the seam early. The first vertical slice goes through backend, contract, and frontend together.
 
 ### Decide the cross-cutting pieces
 
-Decide each one explicitly, with its evidence. Set up a design system, meaning shared primitives with CVA variants and theme tokens, when the same UI elements repeat across many screens or drift visibly apart. Otherwise keep Tailwind and extract components as repetition shows up.
+Decide each cross-cutting piece explicitly, with its evidence. A design system means shared primitives with CVA variants and theme tokens. Set one up when the same UI elements repeat across many screens or drift visibly apart. Otherwise keep Tailwind and extract components as repetition shows up.
 
 ### Design the biggest decisions twice
 
@@ -88,12 +90,12 @@ The spec covers the whole system, so the user sees how the decisions fit togethe
 - **Breaking changes.** What changes, why, who it hits, and how they migrate.
 - **Approach and phases.** Recommend refactoring in place when most behavior works and the target is reachable by a sequence of moves. Recommend a rewrite beside the old code when the stack changes or most behavior is broken or half-built. Order the phases by what each change unlocks, with phase one a working vertical slice.
 
-Then ask what the repo cannot answer with the harness's question tool, or in chat when it has none: cuts of features that may have hidden users, breaks that hit consumers, data migration, and the approach. Update the spec with the answers and wait for approval before writing code. After approval, never drop or add scope silently. When the build shows the spec is wrong, stop and ask.
+Then ask the user what the repo cannot answer, with the harness's question tool or in chat. The usual questions cover cuts of features that may have hidden users, breaks that hit consumers, data migration, and the approach. Update the spec with the answers and wait for approval before writing code. After approval, never drop or add scope silently. When the build shows the spec is wrong, stop and ask.
 
 ## 4. Build toward the spec
 
 1. Pin current behavior first. Write integration tests against the old code for every kept surface. They are the acceptance criteria for the new code, and a listed break changes its test on purpose.
-2. Build the first slice serially, through backend, contract, and frontend, until the contract is fixed.
+2. Build the first slice alone, through backend, contract, and frontend together, until the contract is fixed. A slice that crosses the seam first exposes contract problems before other slices depend on the contract.
 3. Once the contract is fixed, build independent slices in parallel subagents, each in its own worktree. Before that point, parallel slices would each guess a different contract.
 4. Copy old code that already meets the sibling skills, and fit it into the new structure.
 5. When refactoring in place, make one move per commit and keep the tests green between moves.
