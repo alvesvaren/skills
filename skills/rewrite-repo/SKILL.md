@@ -28,17 +28,17 @@ Use these terms in the spec and in your reasoning:
 
 Invoking this skill is the user's request to use subagents. Keep the main context and the main model for decisions, and hand everything else out:
 
-- **Reading and summarizing** go to a small model. Pass `model: "haiku"` for git history and mechanical inventories, and `model: "sonnet"` for an area that is large or tangled.
-- **Implementing a slice against a fixed contract** goes to `model: "sonnet"`.
+- **Reading and summarizing** go to the smallest model the harness offers. Use a mid-size model for an area that is large or tangled.
+- **Implementing a slice against a fixed contract** goes to a mid-size model.
 - **Decisions and review** stay on the main model: designing twice and the final review.
-- Spawn fresh agents, not forks, for cheap work. A fork always runs on the main model.
+- Set the model on each agent explicitly. Skip agents that inherit the conversation for cheap work, since they usually run on the main model.
 - Each fresh agent starts cold. Give it a brief with its area, what to look for, and the shape of its report, and run independent agents in parallel.
 
 ## 1. Read the repo, in parallel
 
 Fan out the reading and keep the main context for the design:
 
-- **One Explore agent per area,** such as backend, frontend, data and migrations, and infra and CI. Each reports the area's behavior with each item marked working, broken, half-built, or dead, who consumes it, and where it hurts: code that is hard to test, tests that mock internal modules, shallow modules, and one change spreading across many files.
+- **One read-only agent per area,** such as backend, frontend, data and migrations, and infra and CI. Each reports the area's behavior with each item marked working, broken, half-built, or dead, who consumes it, and where it hurts: code that is hard to test, tests that mock internal modules, shallow modules, and one change spreading across many files.
 - **One history agent.** It reports hotspots, files that change together, and the commits that added a new variant of something, with how many files each touched. These are the axes of change.
 - **One seam agent,** when the repo has both a frontend and a backend. It reports how types cross the wire, where input is validated, how errors and auth reach the client, and how the client caches server state.
 
@@ -88,7 +88,7 @@ The spec covers the whole system, so the user sees how the decisions fit togethe
 - **Breaking changes.** What changes, why, who it hits, and how they migrate.
 - **Approach and phases.** Recommend refactoring in place when most behavior works and the target is reachable by a sequence of moves. Recommend a rewrite beside the old code when the stack changes or most behavior is broken or half-built. Order the phases by what each change unlocks, with phase one a working vertical slice.
 
-Then ask what the repo cannot answer with AskUserQuestion: cuts of features that may have hidden users, breaks that hit consumers, data migration, and the approach. Update the spec with the answers and wait for approval before writing code. After approval, never drop or add scope silently. When the build shows the spec is wrong, stop and ask.
+Then ask what the repo cannot answer with the harness's question tool, or in chat when it has none: cuts of features that may have hidden users, breaks that hit consumers, data migration, and the approach. Update the spec with the answers and wait for approval before writing code. After approval, never drop or add scope silently. When the build shows the spec is wrong, stop and ask.
 
 ## 4. Build toward the spec
 
