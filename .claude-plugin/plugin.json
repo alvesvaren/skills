@@ -2,7 +2,7 @@
   "name": "alve-skills",
   "displayName": "Alve's Skills",
   "description": "Opinionated conventions for TypeScript, React, testing, and Hono backends",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": { "name": "Alve Svarén", "email": "alve@interpreto.se" },
   "skills": "./skills/"
 }
