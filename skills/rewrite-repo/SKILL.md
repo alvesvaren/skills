@@ -1,6 +1,6 @@
 ---
 name: rewrite-repo
-description: "Clean-room rewrite of a proof of concept or legacy codebase: inventory what it does, agree on scope and breaking changes with the user, then rebuild from that inventory under the conventions in this plugin. Manual only. Invoke with /alve-skills:rewrite-repo <path or git URL>."
+description: "Re-architect an existing codebase as a whole: read how it grew, derive the architecture it should have today, present it as one spec with diagrams, get the user's approval, then rebuild or refactor toward it. Covers any codebase, with extra weight on backend plus frontend and the contract between them. Manual only. Invoke with /alve-skills:rewrite-repo <path or git URL>."
 argument-hint: "<path or git URL>"
 disable-model-invocation: true
 ---
@@ -9,88 +9,99 @@ disable-model-invocation: true
 
 Target: $ARGUMENTS. If no target is given, ask for one.
 
-Rebuild the target as if you started it today, knowing everything it turned out to need. The result is the smallest codebase that does what the agreed scope says, written to the conventions in this plugin.
+Find the architecture the project would have if it were started today by an engineer who knew everything it turned out to need. The design covers the whole system, not one module at a time, because the pieces constrain each other: the contract shapes both sides, and the data model shapes the contract. The old code is evidence of what the system does and where it keeps changing. It does not decide the new structure.
 
-A clean-room rewrite starts from a description of behavior, not from the old code's structure. The old code is evidence of what the system does. Copy a piece of it when it already meets the sibling skills, and rewrite the pieces that do not.
+The goal is better code. The spec exists so the user can judge the design and learn why it is better, so it explains each decision briefly and spends its words on the decisions that matter.
 
-## Apply every sibling skill
+[typescript-best-practices](../typescript-best-practices/SKILL.md), [testing-best-practices](../testing-best-practices/SKILL.md), [backend-best-practices](../backend-best-practices/SKILL.md), and [react-best-practices](../react-best-practices/SKILL.md) apply in full to the new code. [pushback](../pushback/SKILL.md) applies to every recommendation, and [writing](../writing/SKILL.md) to the spec and everything you write to the user. Read writing even though it is manual only.
 
-- [typescript-best-practices](../typescript-best-practices/SKILL.md), [testing-best-practices](../testing-best-practices/SKILL.md), and, where they fit, [backend-best-practices](../backend-best-practices/SKILL.md) and [react-best-practices](../react-best-practices/SKILL.md) apply in full to the new code.
-- [pushback](../pushback/SKILL.md) governs every scope proposal and breaking change you raise.
-- [writing](../writing/SKILL.md) governs the README, commit messages, and everything you write to the user. Read it even though it is manual only.
-- Keep the target's own conventions when they encode a real constraint, such as a deploy target or a required runtime. Ask about the rest.
+## Vocabulary
 
-## Size everything to the behavior
+Use these terms in the spec and in your reasoning:
 
-- Add a layer, abstraction, or dependency only when an inventory item needs it. Symmetry and "might need it later" are not needs.
-- Add no feature the old repo lacked, unless the user approves it during scoping.
-- Leave out config options, flags, and extension points that nothing uses.
+- **Deep module:** a lot of behavior behind a small interface. A **shallow module** has an interface nearly as complex as its implementation.
+- **Seam:** the place where a module's interface lives, where behavior can change without editing the callers.
+- **Axis of change:** something the history shows gets added or replaced repeatedly, such as a new provider, report type, or page.
+- **Deletion test:** imagine deleting a module and inlining it into its callers. If complexity vanishes, it was a pass-through. If the same complexity reappears across several callers, it earns its place.
 
-## 1. Inventory what it does
+## Orchestrate with subagents
 
-Read the old repo for behavior, not structure. Run the app and its tests when you can, since observed behavior beats read behavior. Read the git log for why things were added. Record:
+Invoking this skill is the user's request to use subagents. Keep the main context and the main model for decisions, and hand everything else out:
 
-- **Surfaces.** Routes, pages, CLI commands, exported APIs, jobs, webhooks.
-- **Data.** Schemas, persisted shapes, env config, external services.
-- **Logic.** Rules, calculations, permissions, state transitions. Note the edge cases the old code handles and the ones it gets wrong.
-- **Consumers.** Who calls each surface. A surface with outside consumers is a compatibility contract.
-- **Status.** Mark each item as working, broken, half-built, or dead.
+- **Reading and summarizing** go to a small model. Pass `model: "haiku"` for git history and mechanical inventories, and `model: "sonnet"` for an area that is large or tangled.
+- **Implementing a slice against a fixed contract** goes to `model: "sonnet"`.
+- **Decisions and review** stay on the main model: designing twice and the final review.
+- Spawn fresh agents, not forks, for cheap work. A fork always runs on the main model.
+- Each fresh agent starts cold. Give it a brief with its area, what to look for, and the shape of its report, and run independent agents in parallel.
 
-Keep the inventory and plan outside the committed tree, such as in a scratch file or the PR description. They describe a change, and change narration does not belong in the code.
+## 1. Read the repo, in parallel
 
-## 2. Settle scope before any code
+Fan out the reading and keep the main context for the design:
 
-Ask with AskUserQuestion. Put your recommendation first in each question and skip what the repo already answers.
+- **One Explore agent per area,** such as backend, frontend, data and migrations, and infra and CI. Each reports the area's behavior with each item marked working, broken, half-built, or dead, who consumes it, and where it hurts: code that is hard to test, tests that mock internal modules, shallow modules, and one change spreading across many files.
+- **One history agent.** It reports hotspots, files that change together, and the commits that added a new variant of something, with how many files each touched. These are the axes of change.
+- **One seam agent,** when the repo has both a frontend and a backend. It reports how types cross the wire, where input is validated, how errors and auth reach the client, and how the client caches server state.
 
-- **Location.** Recommend a new directory beside the old repo, so the old one stays runnable as a reference. Alternatives are a new branch or a new repo.
-- **Stack.** Keep the current stack, or move to the plugin defaults. Recommend the defaults unless a constraint holds the current stack in place.
-- **Features.** For each inventory item, propose keep, cut, or defer. Default to keeping what works and is used, and to cutting what is dead. Ask about everything half-built.
-- **Compatibility.** Name the surfaces that must keep their exact shape. Default to none unless a consumer is known.
-- **Data.** Ask whether existing data must migrate into the new schema.
-- **Done.** Agree on what must work before the rewrite can replace the old repo.
+Run the app and its tests when you can, since observed behavior beats read behavior.
 
-## Propose a rescope out loud
+## 2. Derive the architecture
 
-A rescope is any change to what the rewrite delivers. Raise each one as its own question, labeled "Rescope", with the reason and the effect. Propose a rescope when you find:
+### Remove before you add
 
-- A feature that is dead, half-built, or costs far more than its use justifies.
-- A bug that consumers may depend on, so fixing it is also a break.
-- A scope too large for one pass. Propose phases, with phase one a working vertical slice.
-- A missing piece the rewrite needs to be correct, such as input validation, migrations, or auth.
+Run the deletion test on every layer, wrapper, and abstraction the old code has. A project that grew organically carries pass-throughs that were added for symmetry or for a future that never came. Removing them is usually the largest simplification available.
 
-Rescoping continues after the plan. When the build reveals something that changes scope, stop and ask. Never drop or add a feature silently.
+### Make every new pattern cite evidence
 
-## 3. Recommend breaking changes and show their cost
+A pattern earns its place with one of two kinds of evidence:
 
-A rewrite is the cheapest moment to break things, so recommend a break wherever the new design is better. A renamed or reshaped API that only reads better is a valid break.
+- **An axis of change.** At least three variants exist, or the history shows new ones keep arriving. Make adding a variant cheap, ideally one new file plus one registration.
+- **A real seam.** Something varies across it today. One adapter is a hypothetical seam, and two adapters, such as production and a test double at an I/O edge, make a real one.
 
-List each break with what changes, why, who it hits, and how they migrate. Label the why as defect, convention, or taste, as in pushback. Taste is a valid reason, but the user decides only after seeing the consequences.
+Merge near-duplicate code only when the copies are the same knowledge, which shows as changing together in the history. Code that looks alike but encodes two rules stays separate, since merging it makes one edit silently change both rules.
 
-Present the plan before writing code. It holds the inventory with each keep or cut decision, the list of breaks, and a sketch of modules and key dependencies. Wait for approval.
+### Design for the test surface
 
-## 4. Build from the inventory
+The interface is the test surface. Shape each module so a test reaches it through the same interface its callers use, with only the edge mocked. When a test needs to reach past the interface, the module has the wrong shape. Skip extracting code into a separate unit only so it can be tested in isolation, since the bugs then hide in how it is called.
 
-1. Set up tooling first: package manager, strict `tsconfig`, lint, format, test runner, and CI if the old repo had any. Install dependencies at their latest stable versions.
-2. Build in vertical slices, the most valuable item first.
-3. For each logic item, write the test from the inventory first, then implement until it passes.
-4. Copy old code that already meets the sibling skills. Fit it into the new structure instead of letting it decide that structure.
-5. Reproduce a known bug only when the user chose to keep it for compatibility.
+### Treat frontend and backend as one system
 
-## 5. Test what can regress
+- Share code between the two only where it crosses the wire: schemas, inferred types, error codes. Keep UI and server code out of shared packages.
+- Use a monorepo when one team ships both sides together. Keep separate repos when they deploy and version independently.
+- Prove the seam early. The first vertical slice goes through backend, contract, and frontend together.
 
-- Give each logic item in the inventory a test. Plumbing gets none.
-- Skip porting the old tests one-to-one. Keep the cases that pin behavior and drop the ones that pin structure.
-- When the old app runs, feed real inputs to both versions of each kept surface and compare the outputs. Every difference is either a listed break or a bug in the new code.
+### Decide the cross-cutting pieces
 
-## 6. Document what the code cannot say
+Decide each one explicitly, with its evidence. Set up a design system, meaning shared primitives with CVA variants and theme tokens, when the same UI elements repeat across many screens or drift visibly apart. Otherwise keep Tailwind and extract components as repetition shows up.
 
-- Write a README with what the project does and how to run, configure, test, and deploy it. Leave out anything the code or the file tree already shows.
-- Write comments only for intent, tradeoffs, and non-obvious invariants.
-- When a surface with consumers broke, write a `MIGRATION.md` with the before, the after, and the steps for each break.
+### Design the biggest decisions twice
+
+For the one or two decisions that shape the rest, such as the module layout or the contract, spawn two subagents in parallel. Give each the same evidence and a different constraint, and compare their proposals in the spec. Settle smaller decisions directly.
+
+## 3. Present the spec
+
+The spec covers the whole system, so the user sees how the decisions fit together. Publish it as an Artifact when the tool is available, otherwise as an HTML file outside the repo. Split it into sections or pages as needed. It holds:
+
+- **Overview.** A diagram of the target architecture: modules, dependency direction, the frontend-backend contract, and the axes of change with where a new variant goes.
+- **Decisions.** One entry per significant change: the evidence, the change, why it is better, and its cost. Mark each Strong, Worth exploring, or Speculative. Add a before and after diagram where the structure is easier to see than to read, and keep each diagram to the one decision it explains.
+- **Removed and rejected.** Abstractions the deletion test removed, and patterns you considered and rejected, with the reason. This list shows where you held back.
+- **Scope.** Behavior grouped by area, marked keep, cut, or defer. Default to keeping what works and is used, and to cutting what is dead or half-built.
+- **Breaking changes.** What changes, why, who it hits, and how they migrate.
+- **Approach and phases.** Recommend refactoring in place when most behavior works and the target is reachable by a sequence of moves. Recommend a rewrite beside the old code when the stack changes or most behavior is broken or half-built. Order the phases by what each change unlocks, with phase one a working vertical slice.
+
+Then ask what the repo cannot answer with AskUserQuestion: cuts of features that may have hidden users, breaks that hit consumers, data migration, and the approach. Update the spec with the answers and wait for approval before writing code. After approval, never drop or add scope silently. When the build shows the spec is wrong, stop and ask.
+
+## 4. Build toward the spec
+
+1. Pin current behavior first. Write integration tests against the old code for every kept surface. They are the acceptance criteria for the new code, and a listed break changes its test on purpose.
+2. Build the first slice serially, through backend, contract, and frontend, until the contract is fixed.
+3. Once the contract is fixed, build independent slices in parallel subagents, each in its own worktree. Before that point, parallel slices would each guess a different contract.
+4. Copy old code that already meets the sibling skills, and fit it into the new structure.
+5. When refactoring in place, make one move per commit and keep the tests green between moves.
+
+Add an architecture section to the README with the module map and, for each axis of change, where to add a new variant. When a surface with consumers broke, write a `MIGRATION.md` with the steps for each break.
 
 ## Before finishing
 
-1. Walk the inventory. Every item is implemented, cut with the user's approval, or changed as a listed break.
-2. Run the typecheck, lint, tests, and the app itself.
-3. Re-read the whole new tree against the sibling skills, not only the last diff. Every file is new, so every file can drift.
-4. Report to the user what was cut, what broke, and what is left for a later phase.
+1. Walk the spec. Every scope item is built, cut with approval, or changed as a listed break.
+2. Spawn a reviewer subagent with fresh context. It reads the whole new tree against the sibling skills and the spec's decisions, and reports drift and any abstraction the spec does not justify. Fix what it finds.
+3. Report what was cut, what broke, and what is left for a later phase.

@@ -10,7 +10,7 @@ Claude Code plugin with opinionated conventions for the stack I actually use.
 | `backend-best-practices` | Hono, layers, contracts (tRPC/OpenAPI), AppError + onError, Drizzle |
 | `pushback` | How to present suggestions: unprompted disagreement, labeled confidence, ask for the why |
 | `writing` | Prose style for chat, docs, commits, PRs, skills: plain words, one thought per sentence, no AI tells. Manual only |
-| `rewrite-repo` | Clean-room rewrite of a PoC or legacy repo: behavior inventory, scope and rescope questions, breaking changes with their consequences. Manual only |
+| `rewrite-repo` | Re-architect a whole repo: read how it grew, derive the architecture, present one spec with diagrams, then rebuild or refactor with subagents. Manual only |
 
 ## Install
 
